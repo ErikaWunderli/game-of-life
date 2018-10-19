@@ -200,8 +200,9 @@ export default class Game extends React.Component {
             leftUp[0] = leftUp[0] + Math.round(this.rows/2);
             leftUp[1] = leftUp[1] + Math.round(this.cols/2);
 
-            for (let i = 0; i < response.data.pattern.length; ++i) {
-                for (let j = 0; j < response.data.pattern[i].length; ++j) {
+            // ignore pattern that are bigger than canvas
+            for (let i = 0; i < response.data.pattern.length && i < this.rows - leftUp[0]; ++i) {
+                for (let j = 0; j < response.data.pattern[i].length && j < this.cols-leftUp[1]; ++j) {
                     newBoard[i+leftUp[0]][j+leftUp[1]] = response.data.pattern[i][j] === 1;
                 }
             }
