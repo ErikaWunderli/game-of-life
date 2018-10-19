@@ -246,7 +246,7 @@ export default class Game extends React.Component {
                     <button className="button" onClick={this.handleRandom}>Random</button>
 
                     <form onSubmit={this.handleSubmit}>
-                        <input class="button" type="file" name="file" />
+                        <input type="file" name="file" />
                         <input class="button" type="submit" value="Upload" />
                     </form>
                 </div>
