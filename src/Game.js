@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import React from 'react';
 import './Game.css';
+import axios from 'axios';
 
 
 const CELL_SIZE = 20;
@@ -25,12 +26,14 @@ class Cell extends React.Component {
 }
 
 
-class Game extends React.Component {
+export default class Game extends React.Component {
 
     constructor() {
         super();
         this.rows = HEIGHT / CELL_SIZE;
         this.cols = WIDTH / CELL_SIZE;
+        this.survival = [2, 3];
+        this.birth = [3];
         this.board = this.makeEmptyBoard();
     }
 
@@ -63,6 +66,7 @@ class Game extends React.Component {
     }
 
     makeCells() {
+        console.log(this.board);
         let cells = [];
         for (let y = 0; y < this.rows; y++) {
             for (let x = 0; x < this.cols; x++) {
@@ -106,7 +110,6 @@ class Game extends React.Component {
     }
     
     stepGame = () => {
-        this.setState ({ isRunning: true });
         this.runForward();
 }
 
@@ -117,13 +120,13 @@ class Game extends React.Component {
             for (let x = 0; x < this.cols; x++) {
                 let neighbors = this.calculateNeighbors(this.board, x, y);
                 if (this.board[y][x]) {
-                    if (neighbors === 2 || neighbors === 3) {
+                    if (this.survival.includes(neighbors)) {
                         newBoard[y][x] = true;
                     } else {
                         newBoard[y][x] = false;
                     }
                 } else {
-                    if (!this.board[y][x] && neighbors === 3) {
+                    if (!this.board[y][x] && this.birth.includes(neighbors)) {
                         newBoard[y][x] = true;
                     }
                 }
@@ -132,32 +135,12 @@ class Game extends React.Component {
 
         this.board = newBoard;
         this.setState({ cells: this.makeCells() });
+        _generation++;
 
 }
 
     runIteration() {
-        let newBoard = this.makeEmptyBoard();
-
-        for (let y = 0; y < this.rows; y++) {
-            for (let x = 0; x < this.cols; x++) {
-                let neighbors = this.calculateNeighbors(this.board, x, y);
-                if (this.board[y][x]) {
-                    if (neighbors === 2 || neighbors === 3) {
-                        newBoard[y][x] = true;
-                    } else {
-                        newBoard[y][x] = false;
-                    }
-                } else {
-                    if (!this.board[y][x] && neighbors === 3) {
-                        newBoard[y][x] = true;
-                    }
-                }
-            }
-        }
-        _generation ++;
-        this.board = newBoard;
-        this.setState({ cells: this.makeCells() });
-      
+        this.runForward();
         this.timeoutHandler = window.setTimeout(() => {
             this.runIteration();
         }, this.state.interval);
@@ -206,14 +189,39 @@ class Game extends React.Component {
 
         this.setState({ cells: this.makeCells() });
     }
+
+    handleSubmit = event => {
+        event.preventDefault();
+        const data = new FormData(event.target);
+
+        axios.post('http://localhost:5000/from_file', data).then(response => {
+            let newBoard = this.makeEmptyBoard();
+            let leftUp = response.data.position;
+            leftUp[0] = leftUp[0] + Math.round(this.rows/2);
+            leftUp[1] = leftUp[1] + Math.round(this.cols/2);
+
+            for (let i = 0; i < response.data.pattern.length; ++i) {
+                for (let j = 0; j < response.data.pattern[i].length; ++j) {
+                    newBoard[i+leftUp[0]][j+leftUp[1]] = response.data.pattern[i][j] === 1;
+                }
+            }
+
+            this.survival = response.data.survival;
+            this.birth = response.data.birth;
+            this.board = newBoard;
+            this.setState({ cells: this.makeCells() });
+            console.log(response.data);
+        });
+
+    }
    
 
     render() {
-        $(document).ready(function(){
-            $("#importForms").click(function(){
-            $("#list").toggle();
-    });
-});
+        $(document).ready(function () {
+            $("#importForms").click(function () {
+                $("#list").toggle();
+            });
+        });
         const { cells, interval, isRunning } = this.state;
         return (
             <div>
@@ -236,19 +244,18 @@ class Game extends React.Component {
                     <button className="button" onClick={this.stepGame}>Step</button>
                     <button className="button" onClick={this.handleClear}>Clear</button>
                     <button className="button" onClick={this.handleRandom}>Random</button>
-                    <div class="dropdown"> <button id="importForms" className="button">Import</button>
-                        <div id="list" class="dropdown-content">
-                            <p id="acorn">Acorn</p>
-                            <p id="adder">Adder</p>
-                        </div>
-                        </div>
+
+                    <form onSubmit={this.handleSubmit}>
+                        <input type="file" name="file" />
+                        <input type="submit" value="Upload" />
+                    </form>
                 </div>
             </div>
         );
     }
 }
 
-export default Game;
+//export default Game;
 
 
 
