@@ -1,0 +1,50 @@
+
+.Board {
+    position: relative;
+    margin: 0 auto;
+    background-color: white;
+}
+
+.Cell {
+    background: #ccc;
+    position: absolute;
+}
+
+.controls {
+    margin-top: 20px;
+}
+
+.button {
+    margin: 2% 0;
+    padding: 1%;
+    background-color: teal;
+    color: white;
+    margin-left: 12px;
+    cursor: pointer;
+}
+#importForms {
+    position: relative;
+    margin-left: 12px;
+    padding: 5%;
+    background-color: white;
+    color: teal;
+}
+.dropdown-content {
+    display: none;
+    position: relative;
+    float:right;
+    background-color: whitesmoke;
+    width: 75%;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+#importForms:hover .dropdown-content {
+    display: block;
+    
+   
+}
+.dropdown {
+    position: relative;
+    display: inline-block;
+   
+}
