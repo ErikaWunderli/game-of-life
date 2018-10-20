@@ -79,22 +79,6 @@ export default class Game extends React.Component {
         return cells;
     }
 
-    handleClick = (event) => {
-
-        const elemOffset = this.getElementOffset();
-        const offsetX = event.clientX - elemOffset.x;
-        const offsetY = event.clientY - elemOffset.y;
-        
-        const x = Math.floor(offsetX / CELL_SIZE);
-        const y = Math.floor(offsetY / CELL_SIZE);
-
-        if (x >= 0 && x <= this.cols && y >= 0 && y <= this.rows) {
-            this.board[y][x] = !this.board[y][x];
-        }
-
-        this.setState({ cells: this.makeCells() });
-    }
-
     runGame = () => {
         this.setState({ isRunning: true });
         this.runIteration();
@@ -218,17 +202,11 @@ export default class Game extends React.Component {
    
 
     render() {
-        $(document).ready(function () {
-            $("#importForms").click(function () {
-                $("#list").toggle();
-            });
-        });
         const { cells, interval, isRunning } = this.state;
         return (
             <div>
                 <div className="Board"
                     style={{ width: WIDTH, height: HEIGHT, backgroundSize: `${CELL_SIZE}px ${CELL_SIZE}px`}}
-                    onClick={this.handleClick}
                     ref={(n) => { this.boardRef = n; }}>
 
                     {cells.map(cell => (
@@ -257,6 +235,3 @@ export default class Game extends React.Component {
 }
 
 //export default Game;
-
-
-
